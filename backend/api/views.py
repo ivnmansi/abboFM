@@ -2,11 +2,37 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Artist, Album, Song, Scrobble
-from .serializers import ArtistSerializer, AlbumSerializer, SongSerializer, ScrobbleSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import Artist, Album, Song, Scrobble, User
+from .serializers import UserSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, ScrobbleSerializer
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    return Response({
+        'id': request.user.id,
+        'username': request.user.username,
+        'date_joined': request.user.date_joined,
+        'total_scrobbles': request.user.total_scrobbles
+    })
 
 """
-    view all artists, albums, songs, and scrobbles
+    view users
+"""
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    def get_queryset(self):
+        queryset = User.objects.all()
+        user = self.request.query_params.get('user', None)
+
+        if user is not None:
+            queryset = queryset.filter(username=user)
+        
+        return queryset
+
+"""
+    view artists, albums, songs, and scrobbles
 """
 class ArtistsViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
@@ -43,8 +69,10 @@ class ScrobblesViewSet(viewsets.ModelViewSet):
         artist, _ = Artist.objects.get_or_create(name=artist)
         album, _ = Album.objects.get_or_create(title=album, artist=artist)
         song, _ = Song.objects.get_or_create(title=song, album=album)
+        User.objects.filter(id=request.user.id).update(total_scrobbles= User.objects.get(id=request.user.id).total_scrobbles + 1)
 
         scrobble = Scrobble.objects.create(user=request.user, song=song)
+
         scrobble.refresh_from_db()
 
         serializer = self.get_serializer(scrobble)
