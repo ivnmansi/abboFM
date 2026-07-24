@@ -1,0 +1,1 @@
+Miniapp that gets the media playing on windows and automatically sends it to the backend
