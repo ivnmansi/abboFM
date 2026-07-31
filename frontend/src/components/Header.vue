@@ -17,10 +17,10 @@ onMounted(fetchCurrentUser)
 </script>
 
 <template>
-  <header class="flex flex-col gap-4 border-b border-surface-800 pb-5 sm:flex-row sm:items-center sm:justify-between">
+  <header class="flex flex-col gap-4 pb-5 sm:flex-row sm:items-center sm:justify-between">
 
     <div class="flex items-center gap-3">
-      <h1 class="text-3xl font-bold tracking-tight logo">abbo.FM</h1>
+      <h1 class="text-3xl font-bold tracking-tight text-purple-300">abbo.FM</h1>
       <Tag :value="`${currentUser?.total_scrobbles ?? 0} scrobbles`" severity="secondary" />
     </div>
 
@@ -34,10 +34,4 @@ onMounted(fetchCurrentUser)
 </template>
 
 <style scoped>
-.logo {
-    color: transparent;
-    background: linear-gradient(to right, var(--p-purple-400), var(--p-blue-300));
-    -webkit-background-clip: text;
-    background-clip: text;
-}
 </style>

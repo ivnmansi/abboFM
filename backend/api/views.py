@@ -99,6 +99,15 @@ class ScrobblesViewSet(viewsets.ModelViewSet):
         user.total_scrobbles += 1
         user.save(update_fields=['total_scrobbles'])
 
+        artist_obj.total_scrobbles += 1
+        artist_obj.save(update_fields=['total_scrobbles'])
+
+        album_obj.total_scrobbles += 1
+        album_obj.save(update_fields=['total_scrobbles'])
+
+        song_obj.total_scrobbles += 1
+        song_obj.save(update_fields=['total_scrobbles'])
+
         scrobble = Scrobble.objects.create(user=user, song=song_obj)
         serializer = self.get_serializer(scrobble)
 

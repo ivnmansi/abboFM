@@ -7,8 +7,10 @@
     import InputText from 'primevue/inputtext'
     import Button from 'primevue/button'
     import Message from 'primevue/message'
+    import { useToast } from 'primevue/usetoast'
 
     const { addScrobble } = useScrobbles()
+    const toast = useToast()
 
     const formError = ref('')
     const newScrobble = ref<CreateScrobblePayload>({
@@ -23,15 +25,17 @@
             return
         }
 
-    formError.value = ''
-    await addScrobble(newScrobble.value)
-    newScrobble.value = { song: '', artist: '', album: '' }
-}
+        formError.value = ''
+        await addScrobble(newScrobble.value)
+        newScrobble.value = { song: '', artist: '', album: '' }
+
+        toast.add({ severity: 'success', summary: 'Scrobble added', detail: 'Scrobble added successfully.', life: 5000 });
+    }
 
 </script>
 
 <template>
-    <Card>
+    <Card class=" custom-bg">
         <template #title>
             <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -70,3 +74,8 @@
         </template>
     </Card>
 </template>
+<style scoped>
+.custom-bg {
+    background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--p-surface-900) 11%, transparent), color-mix(in srgb, transparent 50%, var(--p-purple-500) 11%)), var(--p-surface-900);
+}
+</style>
