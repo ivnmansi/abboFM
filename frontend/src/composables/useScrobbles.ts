@@ -1,6 +1,6 @@
 import {ref} from 'vue';
 import { scrobbleService } from '@/services/scrobbles';
-import type { Scrobble } from '@/models';
+import type { Scrobble, CreateScrobblePayload } from '@/models';
 
 export function useScrobbles() {
     const scrobbles = ref<Scrobble[]>([]);
@@ -14,7 +14,7 @@ export function useScrobbles() {
         }
     };
 
-    const addScrobble = async (data: { song: string, artist: string, album: string }) => {
+    const addScrobble = async (data: CreateScrobblePayload) => {
         try {
             await scrobbleService.create(data);
             await fetchScrobbles();

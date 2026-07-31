@@ -5,9 +5,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 from .models import Artist, Album, Song, Scrobble, User
-from .serializers import UserSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, ScrobbleSerializer
+from .serializers import UserSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, ScrobbleSerializer, RegisterSerializer
+from .permissions import IsOwnerOrReadOnly
+from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
-@api_view(['GET'])
+@api_view(['GET']) 
 @permission_classes([IsAuthenticated])
 def current_user(request):
     return Response({
@@ -23,13 +26,18 @@ def current_user(request):
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     def get_queryset(self):
-        queryset = User.objects.all()
-        user = self.request.query_params.get('user', None)
+        return User.objects.all().order_by('-id')
 
-        if user is not None:
-            queryset = queryset.filter(username=user)
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def scrobbles(self, request, pk=None):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        return queryset
+        scrobbles = Scrobble.objects.filter(user=user).order_by('-id')
+        serializer = ScrobbleSerializer(scrobbles, many=True)
+        return Response(serializer.data)
 
 """
     view artists, albums, songs, and scrobbles
@@ -46,23 +54,16 @@ class SongsViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+
 class ScrobblesViewSet(viewsets.ModelViewSet):
     serializer_class = ScrobbleSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
     """
         Get the queryset for the scrobbles viewset
     """
     def get_queryset(self):
-        queryset = Scrobble.objects.all()
-        user = self.request.query_params.get('user', None)
-
-        if user is None:
-            queryset = queryset.filter(user=self.request.user)
-
-        elif user:
-            queryset = queryset.filter(user=user)
-        
-        return queryset.order_by('-id')
+        return Scrobble.objects.filter(user=self.request.user).order_by('-id')
 
     """
         Get the last scrobble for the current user
@@ -76,7 +77,6 @@ class ScrobblesViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
         return Response({"detail": "No scrobbles found."}, status=status.HTTP_404_NOT_FOUND)
-
     """
         Create a new scrobble for the current user
     """
@@ -103,3 +103,8 @@ class ScrobblesViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(scrobble)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+    serializer_class = RegisterSerializer

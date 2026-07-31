@@ -53,3 +53,11 @@ class Scrobble(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+"""
+    Payload for creating a new scrobble
+"""
+class CreateScrobblePayload(models.Model):
+    song = models.CharField(max_length=100)
+    artist = models.CharField(max_length=100)
+    album = models.CharField(max_length=100)

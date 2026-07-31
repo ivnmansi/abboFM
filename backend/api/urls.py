@@ -10,6 +10,7 @@ router.register(r'songs', views.SongsViewSet)
 router.register(r'scrobbles', views.ScrobblesViewSet, basename='scrobble'  )
 
 urlpatterns = [
-    path('user/', views.current_user, name='current_user'),
+    path('user/', views.current_user, name='current-user'),
+    path('register/', views.RegisterView.as_view(), name='register'),
     path('', include(router.urls)),
 ]

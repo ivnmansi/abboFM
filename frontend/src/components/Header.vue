@@ -1,34 +1,43 @@
-<template>
-    <header class="border-bottom pb-3">
-        <nav class="navbar navbar-expand-md p-0" aria-label="Main navigation">
-            <div class="container-fluid p-0 gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="navbar-brand mb-0 h1 fw-bold">abboFM</span>
-                    <span class="badge text-bg-primary">{{ currentUser?.total_scrobbles ?? 0 }} scrobbles</span>
-                </div>
-
-                <div class="d-flex align-items-center gap-3 ms-md-auto">
-                    <span class="navbar-text text-body-secondary">Welcome, <strong class="text-body">{{ currentUser?.username ?? 'there' }}</strong></span>
-                    <button type="button" class="btn btn-outline-danger" @click="logout">Log out</button>
-                </div>
-            </div>
-        </nav>
-    </header>
-</template>
 <script setup lang="ts">
-    import { onMounted } from 'vue'
-    import { useUsers } from '@/composables/useUsers'
-    const {currentUser, fetchCurrentUser } = useUsers()
-    import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import { useUsers } from '@/composables/useUsers'
 
-    const router = useRouter()
+const { currentUser, fetchCurrentUser } = useUsers()
+const router = useRouter()
 
-    const logout = () => {
-        localStorage.removeItem('token')
-        router.push('/login')
-    }
+const logout = () => {
+  localStorage.removeItem('token')
+  router.push('/login')
+}
 
-    onMounted(() => {
-        fetchCurrentUser()
-    })
+onMounted(fetchCurrentUser)
 </script>
+
+<template>
+  <header class="flex flex-col gap-4 border-b border-surface-800 pb-5 sm:flex-row sm:items-center sm:justify-between">
+
+    <div class="flex items-center gap-3">
+      <h1 class="text-3xl font-bold tracking-tight logo">abbo.FM</h1>
+      <Tag :value="`${currentUser?.total_scrobbles ?? 0} scrobbles`" severity="secondary" />
+    </div>
+
+    <div class="flex items-center justify-between gap-3 sm:justify-end">
+      <span class="text-sm text-surface-400">
+        Welcome, <strong class="font-semibold text-surface-0">{{ currentUser?.username ?? 'there' }}</strong>
+      </span>
+      <Button label="Log out" severity="danger" outlined size="small" @click="logout" />
+    </div>
+  </header>
+</template>
+
+<style scoped>
+.logo {
+    color: transparent;
+    background: linear-gradient(to right, var(--p-purple-400), var(--p-blue-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+</style>
